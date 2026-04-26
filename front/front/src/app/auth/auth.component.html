@@ -1,0 +1,165 @@
+<div class="auth-page">
+  <div class="auth-container">
+    <div class="auth-header">
+      <h1>{{ isLogin() ? 'Вход в систему' : 'Регистрация' }}</h1>
+      <p>{{ isLogin() ? 'Войдите в свой аккаунт' : 'Создайте новый аккаунт' }}</p>
+    </div>
+
+    @if (isLogin()) {
+      <form class="auth-form" (ngSubmit)="onLogin()">
+        <div class="form-group">
+          <label for="login">Логин</label>
+          <input 
+            type="text" 
+            id="login" 
+            name="login"
+            [(ngModel)]="loginData.login"
+            placeholder="Введите логин"
+            [class.error]="loginErrors.login"
+          />
+          @if (loginErrors.login) {
+            <span class="error-message">{{ loginErrors.login }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="password">Пароль</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password"
+            [(ngModel)]="loginData.password"
+            placeholder="Введите пароль"
+            [class.error]="loginErrors.password"
+          />
+          @if (loginErrors.password) {
+            <span class="error-message">{{ loginErrors.password }}</span>
+          }
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--full">
+          Войти
+        </button>
+      </form>
+    } @else {
+      <form class="auth-form" (ngSubmit)="onRegister()">
+        <div class="form-group">
+          <label for="reg-login">Логин</label>
+          <input 
+            type="text" 
+            id="reg-login" 
+            name="login"
+            [(ngModel)]="registerData.login"
+            placeholder="Придумайте логин"
+            [class.error]="registerErrors['login']"
+          />
+          @if (registerErrors['login']) {
+            <span class="error-message">{{ registerErrors['login'] }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password">Пароль</label>
+          <input 
+            type="password" 
+            id="reg-password" 
+            name="password"
+            [(ngModel)]="registerData.password"
+            placeholder="Минимум 6 символов"
+            [class.error]="registerErrors['password']"
+          />
+          @if (registerErrors['password']) {
+            <span class="error-message">{{ registerErrors['password'] }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="fullName">ФИО</label>
+          <input 
+            type="text" 
+            id="fullName" 
+            name="fullName"
+            [(ngModel)]="registerData.fullName"
+            placeholder="Введите полное имя"
+            [class.error]="registerErrors['fullName']"
+          />
+          @if (registerErrors['fullName']) {
+            <span class="error-message">{{ registerErrors['fullName'] }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Телефон</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone"
+            [(ngModel)]="registerData.phone"
+            placeholder="+7 (___) ___-__-__"
+            [class.error]="registerErrors['phone']"
+          />
+          @if (registerErrors['phone']) {
+            <span class="error-message">{{ registerErrors['phone'] }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="driverLicense">Номер водительского удостоверения</label>
+          <input 
+            type="text" 
+            id="driverLicense" 
+            name="driverLicense"
+            [(ngModel)]="registerData.driverLicense"
+            placeholder="Введите номер ВУ"
+            [class.error]="registerErrors['driverLicense']"
+          />
+          @if (registerErrors['driverLicense']) {
+            <span class="error-message">{{ registerErrors['driverLicense'] }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="birthDate">Дата рождения</label>
+          <input 
+            type="date" 
+            id="birthDate" 
+            name="birthDate"
+            [(ngModel)]="registerData.birthDate"
+            [class.error]="registerErrors['birthDate']"
+          />
+          @if (registerErrors['birthDate']) {
+            <span class="error-message">{{ registerErrors['birthDate'] }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="personalEmail">Email</label>
+          <input 
+            type="email" 
+            id="personalEmail" 
+            name="personalEmail"
+            [(ngModel)]="registerData.personalEmail"
+            placeholder="example@mail.ru"
+            [class.error]="registerErrors['personalEmail']"
+          />
+          @if (registerErrors['personalEmail']) {
+            <span class="error-message">{{ registerErrors['personalEmail'] }}</span>
+          }
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--full">
+          Зарегистрироваться
+        </button>
+      </form>
+    }
+
+    <div class="auth-footer">
+      <p>
+        {{ isLogin() ? 'Нет аккаунта?' : 'Уже есть аккаунт?' }}
+        <button type="button" class="link-btn" (click)="switchMode()">
+          {{ isLogin() ? 'Зарегистрироваться' : 'Войти' }}
+        </button>
+      </p>
+    </div>
+  </div>
+</div>
