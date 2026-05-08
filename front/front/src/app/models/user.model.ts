@@ -5,6 +5,7 @@ export interface User {
   fullName?: string;
   phone?: string;
   role?: 'CLIENT' | 'ADMIN' | 'MANAGER';
+  userId?: number;
 }
 
 export interface AuthResponse {

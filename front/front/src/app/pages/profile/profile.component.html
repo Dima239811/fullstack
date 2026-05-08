@@ -1,0 +1,115 @@
+<div class="profile-page">
+  @if (isLoading()) {
+    <div class="loading">⏳ Загрузка профиля...</div>
+  } @else {
+    <div class="container">
+      @if (profile(); as profile) {
+        <div class="profile-header">
+          <div class="profile-info">
+            <h1>{{ profile.fullName }}</h1>
+            <p class="role-badge">{{ profile.login }}</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn--secondary" (click)="goHome()">🏠 На главную</button>
+            <button class="btn btn--danger" (click)="logout()">Выйти</button>
+          </div>
+        </div>
+
+        <div class="profile-content">
+          <!-- Блок данных пользователя -->
+          <div class="card user-data">
+            <h2>👤 Личные данные</h2>
+            <div class="data-grid">
+              <div class="data-item">
+                <span class="label">Логин</span>
+                <span class="value">{{ profile.login }}</span>
+              </div>
+              <div class="data-item">
+                <span class="label">ФИО</span>
+                <span class="value">{{ profile.fullName }}</span>
+              </div>
+              <div class="data-item">
+                <span class="label">Телефон</span>
+                <span class="value">{{ profile.phone }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Блок данных клиента -->
+          <div class="card client-data">
+            <h2>🚗 Данные клиента</h2>
+            <div class="data-grid">
+              <div class="data-item">
+                <span class="label">ВУ</span>
+                <span class="value">{{ profile.driverLicense }}</span>
+              </div>
+              <div class="data-item">
+                <span class="label">Дата рождения</span>
+                <span class="value">{{ profile.birthDate }}</span>
+              </div>
+              <div class="data-item">
+                <span class="label">Email</span>
+                <span class="value">{{ profile.personalEmail }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Блок аренд -->
+          <div class="card rentals-section">
+            <h2>📋 Мои аренды</h2>
+            @if (rentals().length > 0) {
+              <div class="table-wrapper">
+                <table class="rentals-table">
+                  <thead>
+                    <tr>
+                      <th>Автомобили</th>
+                      <th>Период аренды</th>
+                      <th>Статус</th>
+                      <th>Стоимость</th>
+                      <th>Депозит</th>
+                      <th>Менеджер</th>
+                      <th>Комментарий</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (rental of rentals(); track rental.id) {
+                      <tr>
+                        <td>
+                          @for (car of rental.cars; track car.carId) {
+                            <div>
+                              {{ car.brand }} {{ car.model }}
+                            </div>
+                          }
+                        </td>
+
+                        <td>{{ rental.startDate }} — {{ rental.endDate }}</td>
+
+                        <td>
+                          <span class="badge" [class]="rental.status.toLowerCase()">
+                            {{ rental.status }}
+                          </span>
+                        </td>
+
+                        <td>{{ getRentalPrice(rental) | number:'1.2-2' }} ₽</td>
+
+                        <td>{{ getRentalDeposit(rental) | number:'1.2-2' }} ₽</td>
+
+                        <td>{{ rental.employeeFullName }}</td>
+
+                        <td>
+                          <small>{{ rental.comment || '—' }}</small>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <p class="empty">Аренд пока нет</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

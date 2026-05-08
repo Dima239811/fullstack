@@ -21,19 +21,6 @@ export class AuthService {
     this.checkAuth();
   }
 
-  private parseJwt(token: string): any {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-      return JSON.parse(jsonPayload);
-    } catch {
-      return null;
-    }
-  }
-
   private checkAuth() {
     const token = localStorage.getItem(this.tokenKey);
     const user = localStorage.getItem(this.userKey);
@@ -44,15 +31,18 @@ export class AuthService {
   }
 
   login(login: string, password: string) {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { login, password }).subscribe({
+    return this.http.post<any>(`${this.apiUrl}/login`, { login, password }).subscribe({
       next: (response) => {
-        const payload = this.parseJwt(response.token);
-        const role = payload?.role?.[0] || 'CLIENT';
-        const user = { login, role };
-        
+        const user = {
+          login: response.login,
+          role: response.role,
+          userId: response.userId
+        };
+
         console.log('Token:', response.token);
-        console.log('Role:', role);
-        
+        console.log('Role:', response.role);
+        console.log('User ID:', response.userId);
+
         this.loginWithToken(response.token, user);
         this.router.navigate(['/home']);
       },
