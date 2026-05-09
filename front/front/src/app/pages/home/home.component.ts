@@ -170,6 +170,14 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  isAdmin = computed(() => {
+    return this.authService.currentUser()?.role === 'ADMIN';
+  });
+
+  goToClients() {
+    this.router.navigate(['/clients']);
+  }
+
   addCarToRental(car: Car) {
     if (this.isCarSelected(car.id)) {
       return;

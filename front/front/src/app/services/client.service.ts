@@ -22,4 +22,12 @@ export class ClientService {
   getByUserId(userId: number): Observable<Client> {
     return this.http.get<Client>(`${this.apiUrl}/by-user/${userId}`);
   }
+
+  getAll(): Observable<ClientProfileResponse[]> {
+    return this.http.get<ClientProfileResponse[]>(this.apiUrl);
+  }
+
+  deleteClient(login: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${login}`);  
+  }
 }

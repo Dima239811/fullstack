@@ -259,7 +259,7 @@
                     </thead>
 
                     <tbody>
-                      @for (rental of sortedRentals(); track rental.id) {
+                      @for (rental of pagedRentals(); track rental.id) {
                         <tr>
                           <td>{{ rental.id }}</td>
 
@@ -310,6 +310,22 @@
                           </td>
                         </tr>
                       }
+
+                      <div class="pagination">
+                        <button (click)="page.set(page() - 1)" [disabled]="page() === 0">
+                          ← Назад
+                        </button>
+
+                        <span>Страница {{ page() + 1 }}</span>
+
+                        <button
+                          (click)="page.set(page() + 1)"
+                          [disabled]="(page() + 1) * pageSize() >= sortedRentals().length"
+                        >
+                          Вперёд →
+                        </button>
+                      </div>
+
                     </tbody>
                   </table>
                 </div>

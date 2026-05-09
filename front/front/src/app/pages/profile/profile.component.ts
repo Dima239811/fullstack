@@ -48,6 +48,9 @@ export class ProfileComponent implements OnInit {
   editingRental = signal<Rental | null>(null);
   editRentalForm!: FormGroup;
 
+  page = signal(0);
+  pageSize = signal(5);
+
   constructor(
     private authService: AuthService,
     private clientService: ClientService,
@@ -194,6 +197,13 @@ export class ProfileComponent implements OnInit {
       this.sortDirection.set('desc');
     }
   }
+
+  pagedRentals = computed(() => {
+    const start = this.page() * this.pageSize();
+    const end = start + this.pageSize();
+
+    return this.sortedRentals().slice(start, end);
+  });
 
   getRentalDays(rental: Rental): number {
     const start = new Date(rental.startDate);

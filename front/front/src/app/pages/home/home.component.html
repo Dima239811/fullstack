@@ -1,10 +1,15 @@
 <div class="home-page">
   <header class="header">
     <div class="container header-content">
-      <h2 class="logo">🚗 Car Rental</h2>
+      <h2 class="logo">Car Rental</h2>
       <div class="header-actions">
-        <button class="btn btn--profile" (click)="goToProfile()">👤 Профиль</button>
+        <button class="btn btn--profile" (click)="goToProfile()">Профиль</button>
         <button class="btn btn--secondary" (click)="logout()">Выйти</button>
+        @if (isAdmin()) {
+        <button class="btn btn--secondary" (click)="goToClients()">
+          Клиенты
+        </button>
+      }
       </div>
     </div>
   </header>
@@ -23,7 +28,7 @@
         </div>
 
         <button class="btn btn--primary btn--select-dates" (click)="openDateModal()">
-          📅 Выбрать даты
+          Выбрать даты
           @if (rentalStartDate() && rentalEndDate()) {
             <span class="date-badge">{{ rentalStartDate() | slice:5:7 }}/{{ rentalStartDate() | slice:0:4 }} - {{ rentalEndDate() | slice:5:7 }}/{{ rentalEndDate() | slice:0:4 }}</span>
           }
@@ -35,9 +40,9 @@
           [ngModel]="sortBy()"
           (ngModelChange)="sortBy.set($event)"
           class="filter-select">
-          <option value="brand">📝 По марке (А-Я)</option>
-          <option value="price-asc">💰 Сначала дешевые</option>
-          <option value="price-desc">💎 Сначала дорогие</option>
+          <option value="brand">По марке (А-Я)</option>
+          <option value="price-asc">Сначала дешевые</option>
+          <option value="price-desc">Сначала дорогие</option>
         </select>
       </div>
     </div>
@@ -142,9 +147,9 @@
                   @if (rentalStartDate() && rentalEndDate()) {
                     <div class="availability-row">
                       @if (getCarAvailability(car.id)) {
-                        <span class="status-badge available">✅ Доступна</span>
+                        <span class="status-badge available">Доступна</span>
                       } @else {
-                        <span class="status-badge unavailable">❌ Занята</span>
+                        <span class="status-badge unavailable">Занята</span>
                       }
                     </div>
 
