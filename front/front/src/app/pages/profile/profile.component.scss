@@ -159,3 +159,186 @@
   padding: 40px 0;
   font-size: 16px;
 }
+
+.btn--cancel {
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--radius);
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    background: #fecaca;
+  }
+}
+
+.action-disabled {
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.edit-profile {
+  margin-top: 24px;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+/* вертикальная сетка формы */
+.edit-profile .data-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* каждый input-блок */
+.edit-profile .data-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-light);
+    font-weight: 600;
+  }
+
+  input {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    &:hover {
+      border-color: var(--primary-light);
+    }
+  }
+}
+
+/* кнопки формы */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 10px;
+
+  .btn {
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .btn--primary {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+
+    &:hover {
+      background-color: var(--primary-dark);
+    }
+  }
+
+  .btn--secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+
+    &:hover {
+      background-color: var(--bg-tertiary);
+    }
+  }
+}
+.edit-profile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* сама карточка формы */
+.edit-profile form {
+  width: 100%;
+  max-width: 520px;
+
+  background: var(--bg-primary);
+  border-radius: 16px;
+  padding: 28px;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  animation: modalIn 0.25s ease-out;
+}
+
+@keyframes modalIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.edit-profile h2 {
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.edit-profile .data-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable:hover {
+  text-decoration: underline;
+}

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Client } from '../models/client.model';
-import { UserProfileResponse } from '../models/user-profile.model';
+import { ClientProfileResponse } from '../models/user-profile.model';
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
@@ -14,9 +14,9 @@ export class ClientService {
     return this.http.get<Client>(`${this.apiUrl}/${id}`);
   }
 
-  getProfile(id: number): Observable<UserProfileResponse> {
+  getProfile(id: number): Observable<ClientProfileResponse> {
     console.log(`Fetching profile for user ID: ${id}`);
-    return this.http.get<UserProfileResponse>(`${this.apiUrl}/${id}/profile`);
+    return this.http.get<ClientProfileResponse>(`${this.apiUrl}/${id}/profile`);
   }
 
   getByUserId(userId: number): Observable<Client> {

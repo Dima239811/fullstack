@@ -7,18 +7,20 @@
         <div class="profile-header">
           <div class="profile-info">
             <h1>{{ profile.fullName }}</h1>
-            <p class="role-badge">{{ profile.login }}</p>
+            <p class="role-badge">{{ userRole() | role }}</p>
           </div>
+
           <div class="header-actions">
-            <button class="btn btn--secondary" (click)="goHome()">🏠 На главную</button>
+            <button class="btn btn--secondary" (click)="goHome()">На главную</button>
             <button class="btn btn--danger" (click)="logout()">Выйти</button>
+            <button class="btn btn--primary" (click)="openEdit()">Редактировать профиль</button>
           </div>
         </div>
 
         <div class="profile-content">
-          <!-- Блок данных пользователя -->
+          <!-- Общие данные -->
           <div class="card user-data">
-            <h2>👤 Личные данные</h2>
+            <h2>Личные данные</h2>
             <div class="data-grid">
               <div class="data-item">
                 <span class="label">Логин</span>
@@ -35,44 +37,90 @@
             </div>
           </div>
 
-          <!-- Блок данных клиента -->
-          <div class="card client-data">
-            <h2>🚗 Данные клиента</h2>
-            <div class="data-grid">
-              <div class="data-item">
-                <span class="label">ВУ</span>
-                <span class="value">{{ profile.driverLicense }}</span>
-              </div>
-              <div class="data-item">
-                <span class="label">Дата рождения</span>
-                <span class="value">{{ profile.birthDate }}</span>
-              </div>
-              <div class="data-item">
-                <span class="label">Email</span>
-                <span class="value">{{ profile.personalEmail }}</span>
+          <!-- Режим редактирования -->
+          @if (isEditMode()) {
+            <div class="card edit-profile">
+              <h2>Редактирование профиля</h2>
+              <form [formGroup]="editForm">
+                <div class="data-grid">
+                  <div class="data-item">
+                    <span class="label">Логин</span>
+                    <input type="text" formControlName="login" />
+                  </div>
+                  <div class="data-item">
+                    <span class="label">ФИО</span>
+                    <input type="text" formControlName="fullName" />
+                  </div>
+                  <div class="data-item">
+                    <span class="label">Телефон</span>
+                    <input type="text" formControlName="phone" />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn--primary" (click)="saveProfile()">Сохранить</button>
+                  <button type="button" class="btn btn--secondary" (click)="closeEdit()">Отмена</button>
+                </div>
+              </form>
+            </div>
+          }
+
+          <!-- Данные клиента -->
+          @if (isClientProfile(profile)) {
+            <div class="card client-data">
+              <h2>Данные клиента</h2>
+              <div class="data-grid">
+                <div class="data-item">
+                  <span class="label">ВУ</span>
+                  <span class="value">{{ profile.driverLicense || '—' }}</span>
+                </div>
+                <div class="data-item">
+                  <span class="label">Дата рождения</span>
+                  <span class="value">{{ profile.birthDate || '—' }}</span>
+                </div>
+                <div class="data-item">
+                  <span class="label">Email</span>
+                  <span class="value">{{ profile.personalEmail || '—' }}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Блок аренд -->
-          <div class="card rentals-section">
-            <h2>📋 Мои аренды</h2>
-            @if (rentals().length > 0) {
-              <div class="table-wrapper">
-                <table class="rentals-table">
+            <!-- Аренды клиента -->
+            <div class="card rentals-section">
+              <h2>Мои аренды</h2>
+              @if (rentals().length > 0) {
+                <div class="table-wrapper">
+                  <table class="rentals-table">
                   <thead>
                     <tr>
                       <th>Автомобили</th>
-                      <th>Период аренды</th>
-                      <th>Статус</th>
-                      <th>Стоимость</th>
+                      <th (click)="setSort('startDate')" class="sortable">
+                          Период
+                          <span>
+                            {{ sortField() === 'startDate' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+                          </span>
+                        </th>
+
+                        <th (click)="setSort('status')" class="sortable">
+                          Статус
+                          <span>
+                            {{ sortField() === 'status' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+                          </span>
+                        </th>
+
+                        <th (click)="setSort('price')" class="sortable">
+                          Стоимость
+                          <span>
+                            {{ sortField() === 'price' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+                          </span>
+                        </th>
                       <th>Депозит</th>
                       <th>Менеджер</th>
                       <th>Комментарий</th>
+                      <th>Действия</th>
                     </tr>
                   </thead>
                   <tbody>
-                    @for (rental of rentals(); track rental.id) {
+                    @for (rental of sortedRentals(); track rental.id) {
                       <tr>
                         <td>
                           @for (car of rental.cars; track car.carId) {
@@ -86,7 +134,7 @@
 
                         <td>
                           <span class="badge" [class]="rental.status.toLowerCase()">
-                            {{ rental.status }}
+                            {{ rental.status | rentalStatus }}
                           </span>
                         </td>
 
@@ -99,16 +147,173 @@
                         <td>
                           <small>{{ rental.comment || '—' }}</small>
                         </td>
+
+                        <td>
+                          @if (rental.status === 'PENDING' || rental.status === 'CONFIRMED') {
+                            <button
+                              class="btn btn--danger btn-sm"
+                              (click)="cancelRental(rental.id)">
+                              Отменить
+                            </button>
+                          } @else {
+                            <span class="empty">—</span>
+                          }
+                        </td>
+
                       </tr>
                     }
                   </tbody>
                 </table>
+                </div>
+              } @else {
+                <p class="empty">Аренд пока нет</p>
+              }
+            </div>
+          }
+
+          <!-- Данные сотрудника -->
+          @if (isEmployeeProfile(profile)) {
+            <div class="card employee-data">
+              <h2>Данные сотрудника</h2>
+              <div class="data-grid">
+                <div class="data-item">
+                  <span class="label">Должность</span>
+                  <span class="value">{{ profile.position || '—' }}</span>
+                </div>
+                <div class="data-item">
+                  <span class="label">Отдел</span>
+                  <span class="value">{{ profile.department || '—' }}</span>
+                </div>
+                <div class="data-item">
+                  <span class="label">Офис</span>
+                  <span class="value">{{ profile.officeNumber || '—' }}</span>
+                </div>
+                <div class="data-item">
+                  <span class="label">Рабочая почта</span>
+                  <span class="value">{{ profile.workEmail || '—' }}</span>
+                </div>
+                <div class="data-item">
+                  <span class="label">Зарплата</span>
+                  <span class="value">
+                    {{ profile.salary != null ? (profile.salary + ' ₽') : '—' }}
+                  </span>
+                </div>
               </div>
-            } @else {
-              <p class="empty">Аренд пока нет</p>
-            }
-          </div>
+            </div>
+          }
+
+          <!-- Аренды под управлением (менеджер/админ) -->
+          @if (isManager() || isAdmin()) {
+            <div class="card rentals-section">
+              <h2>Аренды под управлением</h2>
+              @if (rentals().length > 0) {
+                <div class="table-wrapper">
+                  <table class="rentals-table">
+                    <!-- ... содержимое таблицы ... -->
+                  </table>
+                </div>
+              } @else {
+                <p class="empty">Назначенных аренд пока нет</p>
+              }
+            </div>
+          }
+
+          @if (isAdmin()) {
+            <div class="card rentals-section">
+              <h2>Все аренды системы</h2>
+
+              @if (rentals().length > 0) {
+                <div class="table-wrapper">
+                  <table class="rentals-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Клиент</th>
+                        <th>Менеджер</th>
+                        <th>Автомобили</th>
+                        <th (click)="setSort('startDate')" class="sortable">
+                          Период
+                          <span>
+                            {{ sortField() === 'startDate' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+                          </span>
+                        </th>
+
+                        <th (click)="setSort('status')" class="sortable">
+                          Статус
+                          <span>
+                            {{ sortField() === 'status' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+                          </span>
+                        </th>
+
+                        <th (click)="setSort('price')" class="sortable">
+                          Стоимость
+                          <span>
+                            {{ sortField() === 'price' ? (sortDirection() === 'asc' ? '↑' : '↓') : '' }}
+                          </span>
+                        </th>
+                        <th>Депозит</th>
+                        <th>Комментарий</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      @for (rental of sortedRentals(); track rental.id) {
+                        <tr>
+                          <td>{{ rental.id }}</td>
+
+                          <td>
+                            <div>{{ rental.clientFullName }}</div>
+                            <small>{{ rental.clientLogin }}</small>
+                          </td>
+
+                          <td>
+                            <div>{{ rental.employeeFullName }}</div>
+                            <small>{{ rental.employeeLogin }}</small>
+                          </td>
+
+                          <td>
+                            @for (car of rental.cars; track car.carId) {
+                              <div>
+                                {{ car.brand }} {{ car.model }}
+                              </div>
+                            }
+                          </td>
+
+                          <td>
+                            {{ rental.startDate }} — {{ rental.endDate }}
+                          </td>
+
+                          <td>
+                            <span class="badge" [class]="rental.status.toLowerCase()">
+                              {{ rental.status | rentalStatus }}
+                            </span>
+                          </td>
+
+                          <td>
+                            {{ getRentalPrice(rental) | number:'1.2-2' }} ₽
+                          </td>
+
+                          <td>
+                            {{ getRentalDeposit(rental) | number:'1.2-2' }} ₽
+                          </td>
+
+                          <td>
+                            <small>{{ rental.comment || '—' }}</small>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              } @else {
+                <p class="empty">Аренд нет</p>
+              }
+            </div>
+          }
+
         </div>
+      } @else {
+        <p class="error">Профиль не найден</p>
       }
     </div>
   }

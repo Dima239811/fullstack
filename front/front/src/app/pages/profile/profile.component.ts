@@ -6,22 +6,52 @@ import { ClientService } from '../../services/client.service';
 import { RentalService } from '../../services/rental.service';
 import { UserProfileResponse } from '../../models/user-profile.model';
 import { Rental } from '../../models/client.model';
+import { RentalStatusPipe } from '../../models/RentalStatusPipe ';
+import { ReactiveFormsModule } from '@angular/forms';
+import { EmployeeService } from '../../services/employee.service';
+import { RolePipe } from '../../models/role.pipe';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UserService } from '../../services/user.service';
+import { Profile } from '../../models/user-profile.model';
+import { Observable, map } from 'rxjs';
+import { EmployeeProfileResponse, ClientProfileResponse } from '../../models/user-profile.model';
+
+
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule],
+  imports: [CommonModule, RentalStatusPipe, ReactiveFormsModule, RolePipe],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent implements OnInit {
-  profile = signal<UserProfileResponse | null>(null);
+  profile = signal<Profile | null>(null);
+/* 
+  profileClients = signal<EmployeeBriefResponse | null>(null);
+  profileEmployees = signal<EmployeeBriefResponse | null>(null); */
+
+
   rentals = signal<Rental[]>([]);
   isLoading = signal(true);
+  userRole = signal<string | null>(null);
+
+  isClient = computed(() => this.userRole() === 'CLIENT');
+  isManager = computed(() => this.userRole() === 'MANAGER');
+  isAdmin = computed(() => this.userRole() === 'ADMIN');
+
+  editForm!: FormGroup;
+  isEditMode = signal(false);
+
+  sortField = signal<'startDate' | 'price' | 'status'>('startDate');
+  sortDirection = signal<'asc' | 'desc'>('desc');
 
   constructor(
     private authService: AuthService,
     private clientService: ClientService,
     private rentalService: RentalService,
+    private employeeService: EmployeeService,
+    private fb: FormBuilder,
+    private userService: UserService,
     private router: Router
   ) {}
 
@@ -31,22 +61,58 @@ export class ProfileComponent implements OnInit {
 
   loadProfile() {
     const user = this.authService.currentUser();
-    console.log('Current User:', user);
     if (!user?.userId) {
       console.error('User ID not found');
       this.isLoading.set(false);
       return;
     }
 
-    this.clientService.getProfile(user.userId).subscribe({
+    this.userRole.set(this.authService.getRole());
+
+    let profileRequest: Observable<Profile>;
+
+    if (this.userRole() === 'CLIENT') {
+      profileRequest = this.clientService.getProfile(user.userId).pipe(
+        map(profile => ({ ...profile, type: 'CLIENT' as const }))
+      );
+    } else if (this.userRole() === 'MANAGER' || this.userRole() === 'ADMIN') {
+      profileRequest = this.employeeService.getProfile(user.userId).pipe(
+        map(profile => ({ ...profile, type: 'EMPLOYEE' as const }))
+      );
+    } else {
+      console.error('Unknown user role:', this.userRole());
+      this.isLoading.set(false);
+      return;
+    }
+
+    profileRequest.subscribe({
       next: (profile) => {
         this.profile.set(profile);
+        this.initForm(profile);
         this.loadRentals();
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Failed to load profile:', err);
         this.isLoading.set(false);
       }
+    });
+  }
+
+  isEmployeeProfile(profile: Profile | null): profile is EmployeeProfileResponse {
+    return !!profile && profile.type === 'EMPLOYEE';
+  }
+
+  isClientProfile(profile: Profile | null): profile is ClientProfileResponse {
+    return !!profile && profile.type === 'CLIENT';
+  }
+
+  private initForm(profile: UserProfileResponse) {
+    this.editForm = this.fb.group({
+      login: [profile.login, Validators.required],
+      fullName: [profile.fullName, Validators.required],
+      phone: [profile.phone],
+      password: [''] // пустой = не менять
     });
   }
 
@@ -57,7 +123,20 @@ export class ProfileComponent implements OnInit {
       this.isLoading.set(false);
       return;
     }
-    this.rentalService.getMyRentals(user?.userId).subscribe({
+
+    const role = this.userRole();
+
+    let request;
+
+    if (role === 'ADMIN') {
+      request = this.rentalService.getAll();
+    } else if (role === 'MANAGER') {
+      request = this.rentalService.getManagerRentals(user.userId);
+    } else {
+      request = this.rentalService.getMyRentals(user.userId);
+    }
+
+    request.subscribe({
       next: (rentals) => {
         this.rentals.set(rentals);
         this.isLoading.set(false);
@@ -69,13 +148,57 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  getRentalDays(rental: Rental): number {
-  const start = new Date(rental.startDate);
-  const end = new Date(rental.endDate);
+  sortedRentals = computed(() => {
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    const multiplier = dir === 'asc' ? 1 : -1;
 
-  const diff = end.getTime() - start.getTime();
-  return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-}
+    return [...this.rentals()].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (field) {
+        case 'startDate':
+          aValue = new Date(a.startDate).getTime();
+          bValue = new Date(b.startDate).getTime();
+          break;
+
+        case 'price':
+          aValue = this.getRentalPrice(a);
+          bValue = this.getRentalPrice(b);
+          break;
+
+        case 'status':
+          aValue = a.status;
+          bValue = b.status;
+          break;
+
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return -1 * multiplier;
+      if (aValue > bValue) return 1 * multiplier;
+      return 0;
+    });
+  });
+
+  setSort(field: 'startDate' | 'price' | 'status') {
+    if (this.sortField() === field) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDirection.set('desc');
+    }
+  }
+
+  getRentalDays(rental: Rental): number {
+    const start = new Date(rental.startDate);
+    const end = new Date(rental.endDate);
+
+    const diff = end.getTime() - start.getTime();
+    return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  }
 
   getRentalPrice(rental: Rental): number {
     const days = this.getRentalDays(rental);
@@ -97,5 +220,70 @@ export class ProfileComponent implements OnInit {
 
   goHome() {
     this.router.navigate(['/home']);
+  }
+
+  openEdit() {
+    if (this.profile()) {
+      this.initForm(this.profile()!);
+      this.isEditMode.set(true);
+    }
+  }
+
+  saveProfile() {
+    const user = this.authService.currentUser();
+    if (!user?.userId) return;
+
+    const formValue = this.editForm.value;
+
+    const request = {
+      login: formValue.login,
+      fullName: formValue.fullName,
+      phone: formValue.phone
+    };
+
+    this.userService.updateUser(user.userId, request).subscribe({
+      next: (updated) => {
+        const current = this.profile();
+
+        if (!current) return;
+
+        this.profile.set({
+          ...current,
+          ...updated
+        });
+
+        this.isEditMode.set(false);
+      },
+      error: (err) => {
+        console.error('Update failed:', err);
+        alert('Ошибка обновления профиля');
+      }
+    });
+  }
+
+  closeEdit() {
+    this.isEditMode.set(false);
+  }
+
+  cancelRental(rentalId: number) {
+    if (!confirm('Отменить аренду?')) {
+      return;
+    }
+
+    this.rentalService.cancel(rentalId).subscribe({
+      next: () => {
+        this.rentals.update(rentals =>
+          rentals.map(r =>
+            r.id === rentalId
+              ? { ...r, status: 'CANCELLED' }
+              : r
+          )
+        );
+      },
+      error: (err) => {
+        console.error('Failed to cancel rental:', err);
+        alert(err.error?.message || 'Ошибка при отмене аренды');
+      }
+    });
   }
 }

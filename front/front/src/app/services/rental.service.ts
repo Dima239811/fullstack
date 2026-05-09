@@ -28,4 +28,13 @@ export class RentalService {
   getMyRentals(id: number): Observable<Rental[]> {
     return this.http.get<Rental[]>(`${this.apiUrl}/my-rentals/${id}`);
   }
+
+  cancel(id: number): Observable<Rental> {
+    return this.http.patch<Rental>(`${this.apiUrl}/${id}/cancel`, {});
+  }
+
+  // TODO Добавить методы для менеджера и админа
+  getManagerRentals(id: number): Observable<Rental[]> {
+    return this.http.get<Rental[]>(`${this.apiUrl}/manager-rentals/${id}`);
+  }
 }
