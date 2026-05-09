@@ -45,6 +45,9 @@ export class ProfileComponent implements OnInit {
   sortField = signal<'startDate' | 'price' | 'status'>('startDate');
   sortDirection = signal<'asc' | 'desc'>('desc');
 
+  editingRental = signal<Rental | null>(null);
+  editRentalForm!: FormGroup;
+
   constructor(
     private authService: AuthService,
     private clientService: ClientService,
@@ -283,6 +286,49 @@ export class ProfileComponent implements OnInit {
       error: (err) => {
         console.error('Failed to cancel rental:', err);
         alert(err.error?.message || 'Ошибка при отмене аренды');
+      }
+    });
+  }
+
+  openEditRental(rental: Rental) {
+    console.log('OPEN EDIT', rental);
+    // Сначала создаём форму
+    this.editRentalForm = this.fb.group({
+      status: [rental.status, Validators.required],
+      startDate: [rental.startDate, Validators.required],
+      endDate: [rental.endDate, Validators.required],
+      comment: [rental.comment || '']
+    });
+
+    // Затем устанавливаем сигнал
+    this.editingRental.set(rental);
+  }
+
+
+  closeEditRental() {
+    this.editingRental.set(null);
+  }
+
+  saveRentalEdit() {
+  const rental = this.editingRental();
+  if (!rental) return;
+
+  const updated = {
+    ...rental,
+    ...this.editRentalForm.value
+  };
+
+  this.rentalService.update(rental.id, this.editRentalForm.value).subscribe({
+      next: (res) => {
+        this.rentals.update(list =>
+          list.map(r => r.id === rental.id ? res : r)
+        );
+
+        this.editingRental.set(null);
+      },
+      error: (err) => {
+        console.error('Update rental failed:', err);
+        alert('Ошибка обновления аренды');
       }
     });
   }

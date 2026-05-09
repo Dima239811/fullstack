@@ -203,7 +203,7 @@
           }
 
           <!-- Аренды под управлением (менеджер/админ) -->
-          @if (isManager() || isAdmin()) {
+          @if (isManager()) {
             <div class="card rentals-section">
               <h2>Аренды под управлением</h2>
               @if (rentals().length > 0) {
@@ -253,6 +253,8 @@
                         </th>
                         <th>Депозит</th>
                         <th>Комментарий</th>
+
+                        <th>Действия</th>
                       </tr>
                     </thead>
 
@@ -300,6 +302,12 @@
                           <td>
                             <small>{{ rental.comment || '—' }}</small>
                           </td>
+
+                          <td>
+                            <button (click)="openEditRental(rental)" class="btn btn--secondary">
+                              Редактировать
+                            </button>
+                          </td>
                         </tr>
                       }
                     </tbody>
@@ -308,6 +316,56 @@
               } @else {
                 <p class="empty">Аренд нет</p>
               }
+            </div>
+          }
+
+
+          @if (editingRental() && editRentalForm) {
+            <div class="card edit-rental">
+              <h2>Редактирование аренды #{{ editingRental()?.id }}</h2>
+
+              <form [formGroup]="editRentalForm">
+
+                <!-- STATUS -->
+                <div class="data-item">
+                  <label>Статус</label>
+                  <select formControlName="status">
+                    <option value="PENDING">PENDING</option>
+                    <option value="CONFIRMED">CONFIRMED</option>
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                    <option value="CANCELLED">CANCELLED</option>
+                  </select>
+                </div>
+
+                <!-- DATES -->
+                <div class="data-item">
+                  <label>Дата начала</label>
+                  <input type="date" formControlName="startDate" />
+                </div>
+
+                <div class="data-item">
+                  <label>Дата окончания</label>
+                  <input type="date" formControlName="endDate" />
+                </div>
+
+                <!-- COMMENT -->
+                <div class="data-item">
+                  <label>Комментарий</label>
+                  <textarea formControlName="comment"></textarea>
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" class="btn btn--primary" (click)="saveRentalEdit()">
+                    Сохранить
+                  </button>
+
+                  <button type="button" class="btn btn--secondary" (click)="closeEditRental()">
+                    Отмена
+                  </button>
+                </div>
+
+              </form>
             </div>
           }
 

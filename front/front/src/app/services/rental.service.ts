@@ -37,4 +37,8 @@ export class RentalService {
   getManagerRentals(id: number): Observable<Rental[]> {
     return this.http.get<Rental[]>(`${this.apiUrl}/manager-rentals/${id}`);
   }
+
+  update(rentalId: number, data: any) {
+    return this.http.patch<Rental>(`${this.apiUrl}/${rentalId}`, data);
+  }
 }
