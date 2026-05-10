@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
@@ -59,7 +59,15 @@ export class ProfileComponent implements OnInit {
     private fb: FormBuilder,
     private userService: UserService,
     private router: Router
-  ) {}
+  ) {
+    effect(() => {
+      const maxPage = this.totalPages() - 1;
+
+      if (this.page() > maxPage) {
+        this.page.set(Math.max(0, maxPage));
+      }
+    });
+  }
 
   ngOnInit() {
     this.loadProfile();
@@ -118,7 +126,7 @@ export class ProfileComponent implements OnInit {
       login: [profile.login, Validators.required],
       fullName: [profile.fullName, Validators.required],
       phone: [profile.phone],
-      password: [''] // пустой = не менять
+      password: [''] 
     });
   }
 
@@ -302,7 +310,6 @@ export class ProfileComponent implements OnInit {
 
   openEditRental(rental: Rental) {
     console.log('OPEN EDIT', rental);
-    // Сначала создаём форму
     this.editRentalForm = this.fb.group({
       status: [rental.status, Validators.required],
       startDate: [rental.startDate, Validators.required],
@@ -310,7 +317,6 @@ export class ProfileComponent implements OnInit {
       comment: [rental.comment || '']
     });
 
-    // Затем устанавливаем сигнал
     this.editingRental.set(rental);
   }
 
@@ -341,5 +347,25 @@ export class ProfileComponent implements OnInit {
         alert('Ошибка обновления аренды');
       }
     });
+  }
+
+  totalPages = computed(() => {
+    return Math.max(1, Math.ceil(this.sortedRentals().length / this.pageSize()));
+  });
+
+  canGoPrev = computed(() => this.page() > 0);
+
+  canGoNext = computed(() => this.page() < this.totalPages() - 1);
+
+  goPrevPage() {
+    if (this.canGoPrev()) {
+      this.page.update(p => p - 1);
+    }
+  }
+
+  goNextPage() {
+    if (this.canGoNext()) {
+      this.page.update(p => p + 1);
+    }
   }
 }

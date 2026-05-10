@@ -789,3 +789,34 @@
     min-width: 140px;
   }
 }
+
+.form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 14px;
+  color: #111827;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+}
+
+.form-group select:hover {
+  border-color: #cbd5e1;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.form-group select option {
+  padding: 10px;
+}

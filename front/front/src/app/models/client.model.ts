@@ -40,6 +40,7 @@ export interface Rental {
 
 export interface CreateRentalRequest {
   clientId: number;
+  employeeId?: number;
   startDate: string;
   endDate: string;
   carIds: number[];

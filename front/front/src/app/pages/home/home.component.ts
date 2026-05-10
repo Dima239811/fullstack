@@ -9,6 +9,9 @@ import { RentalCarService } from '../../services/rentalcar.service';
 import { Car } from '../../models/car.model';
 import { ClientService } from '../../services/client.service';
 import { forkJoin } from 'rxjs';
+import { EmployeeService } from '../../services/employee.service';
+import { ClientProfileResponse } from '../../models/user-profile.model';
+import { EmployeeProfileResponse } from '../../models/user-profile.model';
 
 interface SelectedCarItem {
   car: Car;
@@ -93,11 +96,17 @@ export class HomeComponent implements OnInit {
     private authService: AuthService,
     private rentalService: RentalService,
     private rentalCarService: RentalCarService,
-    private router: Router
+    private router: Router,
+    private employeeService: EmployeeService
   ) {}
+
+  clients = signal<ClientProfileResponse[]>([]);
+  employees = signal<EmployeeProfileResponse[]>([]);
 
   ngOnInit() {
     this.loadCars();
+    this.loadClients();
+    this.loadEmployees();
   }
 
   loadCars() {
@@ -111,6 +120,26 @@ export class HomeComponent implements OnInit {
         console.error('Failed to load cars:', err);
         this.isLoading.set(false);
       }
+    });
+  }
+
+  loadClients() {
+    this.clientService.getAll().subscribe({
+      next: (res) => {
+        this.clients.set(res);
+        console.log('clients loaded:', res);
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  loadEmployees() {
+    this.employeeService.getAll().subscribe({
+      next: (res) => {
+        this.employees.set(res);
+        console.log('employees loaded:', res);
+      },
+      error: (err) => console.error(err)
     });
   }
 
@@ -274,58 +303,92 @@ export class HomeComponent implements OnInit {
   });
 
   onStartDateChange(value: string) {
-  this.rentalStartDate.set(value);
+    this.rentalStartDate.set(value);
 
-  if (this.rentalEndDate() && this.rentalEndDate() <= value) {
-    this.rentalEndDate.set('');
+    if (this.rentalEndDate() && this.rentalEndDate() <= value) {
+      this.rentalEndDate.set('');
+    }
   }
-}
 
+  selectedClientId = signal<number | null>(null);
+  selectedEmployeeId = signal<number | null>(null);
   
   confirmRental() {
-  const user = this.authService.currentUser();
-  if (!user?.userId) {
-    alert('Ошибка: пользователь не авторизован');
-    return;
+    const user = this.authService.currentUser();
+
+    if (!user?.userId) {
+      alert('Ошибка: пользователь не авторизован');
+      return;
+    }
+
+    const carIds = this.selectedCars().map(item => item.car.id);
+
+    if (user.role === 'CLIENT') {
+
+      this.clientService.getByUserId(user.userId).subscribe({
+        next: (client) => {
+
+          this.rentalService.create({
+            clientId: client.id,
+            startDate: this.rentalStartDate(),
+            endDate: this.rentalEndDate(),
+            carIds,
+            comment: '',
+            discount: 0
+          }).subscribe({
+            next: () => {
+              alert('Аренда создана');
+              this.finishRental();
+            },
+            error: (err) => this.handleError(err)
+          });
+
+        },
+        error: (err) => this.handleError(err)
+      });
+
+      return;
+    }
+
+    const clientId = this.selectedClientId();
+    const employeeId = this.selectedEmployeeId();
+
+    console.log("employeeId:", this.selectedEmployeeId);
+
+    console.log('Confirming rental with clientId:', clientId, 'employeeId:', employeeId, 'carIds:', carIds);
+
+    if (clientId == null || employeeId == null) {
+      alert('Выберите клиента и сотрудника');
+      return;
+    }
+
+    this.rentalService.create({
+      clientId: this.selectedClientId()!,
+      employeeId: this.selectedEmployeeId()!,
+      startDate: this.rentalStartDate(),
+      endDate: this.rentalEndDate(),
+      carIds,
+      comment: '',
+      discount: 0
+    }).subscribe({
+      next: () => {
+        alert('Аренда создана администратором/менеджером');
+        this.finishRental();
+      },
+      error: (err) => this.handleError(err)
+    });
   }
 
-  // Получаем данные клиента по ID юзера
-  this.clientService.getByUserId(user.userId).subscribe({
-    next: (client) => {
-      const carIds = this.selectedCars().map(item => item.car.id);
+  finishRental() {
+    this.closeConfirmRentalModal();
+    this.clearDateSelection();
+    this.loadCars();
+  }
 
-      // Создаем аренду с ID клиента
-      this.rentalService.create({
-        clientId: client.id,
-        startDate: this.rentalStartDate(),
-        endDate: this.rentalEndDate(),
-        carIds: carIds,
-        comment: '',
-        discount: 0
-      }).subscribe({
-        next: (rental) => {
-          // Проверяем наличие сотрудника
-          if (rental?.employeeFullName) {
-            alert(`Все автомобили успешно арендованы!\n\nВаш менеджер: ${rental.employeeFullName}\nТелефон: ${rental.employeeLogin || 'Не указан'}`);
-          } else {
-            alert('Все автомобили успешно арендованы!');
-          }
-          this.closeConfirmRentalModal();
-          this.clearDateSelection();
-          this.loadCars();
-        },
-        error: (err) => {
-          console.error('Failed to create rental:', err);
-          alert('Ошибка при аренде автомобилей: ' + (err.error?.message || err.message));
-        }
-      });
-    },
-    error: (err) => {
-      console.error('Failed to get client:', err);
-      alert('Ошибка: клиент не найден');
-    }
-  });
-}
+  handleError(err: any) {
+    console.error(err);
+    alert(err.error?.message || 'Ошибка');
+  }
 
   logout() {
     this.authService.logout();

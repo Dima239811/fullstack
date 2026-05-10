@@ -142,7 +142,7 @@ export class Clients implements OnInit{
     };
 
     console.log('Updating client with data:', request);
-    console.log('Client login:', client.login);
+    
 
     this.clientService.updateClient(client.login, request).subscribe({
       next: () => {

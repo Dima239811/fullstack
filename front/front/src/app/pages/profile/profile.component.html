@@ -265,21 +265,13 @@
                   </table>
                 </div>
 
-                <div class="pagination">
-                  <button (click)="page.set(page() - 1)" [disabled]="page() === 0">
-                    ←
-                  </button>
-
-                  <span>Стр. {{ page() + 1 }}</span>
-
-                  <button (click)="page.set(page() + 1)">
-                    →
-                  </button>
-                </div>
+                
 
               } @else {
                 <p class="empty">Назначенных аренд пока нет</p>
               }
+               
+              
             </div>
           }
 
@@ -376,7 +368,18 @@
                         </tr>
                       }
 
-                      <div class="pagination">
+                      
+
+                    </tbody>
+                  </table>
+                </div>
+              } @else {
+                <p class="empty">Аренд нет</p>
+              }
+            </div>
+          }
+
+                    <div class="pagination">
                         <button (click)="page.set(page() - 1)" [disabled]="page() === 0">
                           ← Назад
                         </button>
@@ -390,16 +393,6 @@
                           Вперёд →
                         </button>
                       </div>
-
-                    </tbody>
-                  </table>
-                </div>
-              } @else {
-                <p class="empty">Аренд нет</p>
-              }
-            </div>
-          }
-
 
           @if (editingRental() && editRentalForm) {
             <div class="card edit-rental">

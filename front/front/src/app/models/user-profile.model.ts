@@ -15,6 +15,7 @@ export interface ClientProfileResponse extends UserProfileResponse {
   birthDate: string;
   personalEmail: string;
   type?: 'CLIENT';
+  id?: number;
 }
 
 export interface EmployeeProfileResponse extends UserProfileResponse {
