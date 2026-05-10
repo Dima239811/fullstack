@@ -14,7 +14,7 @@ export interface ClientProfileResponse extends UserProfileResponse {
   driverLicense: string;
   birthDate: string;
   personalEmail: string;
-  type: 'CLIENT';
+  type?: 'CLIENT';
 }
 
 export interface EmployeeProfileResponse extends UserProfileResponse {
@@ -23,6 +23,7 @@ export interface EmployeeProfileResponse extends UserProfileResponse {
   department: string;
   officeNumber: string;
   workEmail: string;
+  id: number;
   type: 'EMPLOYEE';
 }
 

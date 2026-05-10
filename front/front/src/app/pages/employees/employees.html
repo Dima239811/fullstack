@@ -1,0 +1,285 @@
+<div class="employees-page">
+  <div class="container">
+
+    <div class="employees-page">
+        <div class="container">
+
+            <div class="page-header">
+            <h1>Сотрудники</h1>
+
+            <div class="header-actions">
+
+                @if(isAdmin()) {
+                    <button class="btn btn--add" (click)="openCreateModal()">
+                    + Добавить сотрудника
+                    </button>
+                }
+
+                <button class="btn btn-back" (click)="goHome()">
+                    ← На главную
+                </button>
+
+            </div>
+        </div>
+
+    @if (isLoading()) {
+      <div class="loading">Загрузка...</div>
+    } @else {
+
+      <div class="table-wrapper">
+        <table class="employees-table">
+
+            <thead>
+                <tr>
+                <th>ID</th>
+                <th>ФИО</th>
+                <th>Логин</th>
+                <th>Телефон</th>
+                <th>Должность</th>
+                <th>Отдел</th>
+                <th>Офис</th>
+                <th>Email</th>
+
+                @if (isAdmin()) {
+                    <th>Зарплата</th>
+                }
+
+                @if (isAdmin()) {
+                    <th>Действия</th>
+                }
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (e of employees(); track e.id) {
+                <tr>
+                    <td>{{ e.id }}</td>
+                    <td>{{ e.fullName }}</td>
+                    <td>{{ e.login }}</td>
+                    <td>{{ e.phone }}</td>
+                    <td>{{ e.position }}</td>
+                    <td>{{ e.department }}</td>
+                    <td>{{ e.officeNumber }}</td>
+                    <td>{{ e.workEmail }}</td>
+
+                    @if (isAdmin()) {
+                    <td>
+                        {{ e.salary !== null ? (e.salary | number:'1.0-0') + ' ₽' : '—' }}
+                    </td>
+                    }
+
+                    @if (isAdmin()) {
+                    <td>
+                        <div class="actions">
+
+                        @if (isAdmin()) {
+                            <button class="btn btn-edit" (click)="openEditModal(e)">
+                            Редактировать
+                            </button>
+                        }
+
+                        @if (isAdmin()) {
+                            <button class="btn btn-delete" (click)="deleteEmployee(e.id)">
+                            Удалить
+                            </button>
+                        }
+
+                        </div>
+                    </td>
+                    }
+                </tr>
+                }
+            </tbody>
+
+            </table>
+      </div>
+    }
+
+    @if (showCreateModal()) {
+    <div class="modal-overlay" (click)="closeCreateModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+
+        <h2>Добавить сотрудника</h2>
+
+        <div class="form-grid">
+
+        <div class="form-group">
+            <label>Логин</label>
+            <input
+            [ngModel]="newEmployee().login"
+            (ngModelChange)="updateEmployee('login', $event)"
+             />
+            @if (validationErrors()['login']) {
+            <div class="error">{{ validationErrors()['login'] }}</div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label>Пароль</label>
+
+            <div class="password-wrapper">
+            <input
+                [type]="showPassword() ? 'text' : 'password'"
+                [ngModel]="newEmployee().password"
+                (ngModelChange)="updateEmployee('password', $event)" />
+
+            <button type="button" class="toggle-pass" (click)="togglePassword()">
+                {{ showPassword() ? '🙈' : '👁️' }}
+            </button>
+            </div>
+
+            @if (validationErrors()['password']) {
+            <div class="error">{{ validationErrors()['password'] }}</div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label>ФИО</label>
+            <input
+            [ngModel]="newEmployee().fullName"
+            (ngModelChange)="updateEmployee('fullName', $event)" />
+            @if (validationErrors()['fullName']) {
+            <div class="error">{{ validationErrors()['fullName'] }}</div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label>Телефон</label>
+            <input
+            [ngModel]="newEmployee().phone"
+            (ngModelChange)="updateEmployee('phone', $event)" />
+            @if (validationErrors()['phone']) {
+            <div class="error">{{ validationErrors()['phone'] }}</div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label>Должность</label>
+            <input
+            [ngModel]="newEmployee().position"
+            (ngModelChange)="updateEmployee('position', $event)" />
+            @if (validationErrors()['position']) {
+            <div class="error">{{ validationErrors()['position'] }}</div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label>Отдел</label>
+            <input
+            [ngModel]="newEmployee().department"
+            (ngModelChange)="updateEmployee('department', $event)" />
+        </div>
+
+        <div class="form-group">
+            <label>Офис</label>
+            <input
+            [ngModel]="newEmployee().officeNumber"
+            (ngModelChange)="updateEmployee('officeNumber', $event)" />
+        </div>
+
+        <div class="form-group">
+            <label>Рабочая почта</label>
+            <input
+            [ngModel]="newEmployee().workEmail"
+            (ngModelChange)="updateEmployee('workEmail', $event)" />
+        </div>
+
+        <div class="form-group">
+            <label>Зарплата</label>
+            <input
+            type="number"
+            [ngModel]="newEmployee().salary"
+            (ngModelChange)="updateEmployee('salary', $event)" />
+
+            @if (validationErrors()['salary']) {
+            <div class="error">{{ validationErrors()['salary'] }}</div>
+            }
+        </div>
+
+        </div>
+
+        <div class="modal-actions">
+        <button class="btn btn--secondary" (click)="closeCreateModal()">Отмена</button>
+
+        <button
+            class="btn btn--success"
+            (click)="createEmployee()">
+            Создать
+        </button>
+        </div>
+
+    </div>
+    </div>
+    }
+
+
+
+
+    @if (showEditModal() && editingEmployee()) {
+        <div class="modal-overlay" (click)="closeEditModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+
+            <h2>Редактирование сотрудника</h2>
+
+            <div class="form-grid">
+
+            <div class="form-group">
+                <label>Должность</label>
+                <input
+                [ngModel]="editingEmployee()?.position"
+                (ngModelChange)="updateField('position', $event)"
+                />
+            </div>
+
+            <div class="form-group">
+                <label>Зарплата</label>
+                <input
+                type="number"
+                [ngModel]="editingEmployee()?.salary"
+                (ngModelChange)="updateField('salary', $event)"
+                />
+            </div>
+
+            <div class="form-group">
+                <label>Отдел</label>
+                <input
+                [ngModel]="editingEmployee()?.department"
+                (ngModelChange)="updateField('department', $event)"
+                />
+            </div>
+
+            <div class="form-group">
+                <label>Офис</label>
+                <input
+                [ngModel]="editingEmployee()?.officeNumber"
+                (ngModelChange)="updateField('officeNumber', $event)"
+                />
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input
+                [ngModel]="editingEmployee()?.workEmail"
+                (ngModelChange)="updateField('workEmail', $event)"
+                />
+            </div>
+
+            </div>
+
+            <div class="modal-actions">
+            <button class="btn btn--secondary" (click)="closeEditModal()">
+                Отмена
+            </button>
+
+            <button class="btn btn--primary" (click)="saveEmployee()">
+                Сохранить
+            </button>
+            </div>
+
+        </div>
+        </div>
+        }
+
+
+  </div>
+</div>

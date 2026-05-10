@@ -37,18 +37,20 @@
                 <td>
                   <div class="actions">
                     <button
-                      type="button"
-                      class="btn btn-edit"
-                      (click)="editClient(client.login)">
-                      Редактировать
-                    </button>
+                    type="button"
+                    class="btn btn-edit"
+                    (click)="openEditClient(client)">
+                    Редактировать
+                  </button>
 
+                    @if(isAdmin()) {
                     <button
                       type="button"
                       class="btn btn-delete"
                       (click)="deleteClient(client.login)">
                       Удалить
                     </button>
+                  }
                   </div>
                 </td>
               </tr>
@@ -87,6 +89,58 @@
 
       </div>
     }
+
+
+    @if (showEditModal()) {
+      <div class="modal-overlay" (click)="closeEditModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+
+          <h2>Редактирование клиента</h2>
+
+          <div class="form-grid">
+
+            <div class="form-group">
+              <label>Права</label>
+              <input
+                type="text"
+                [ngModel]="editClientForm().driverLicense"
+                (ngModelChange)="updateField('driverLicense', $event)"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Дата рождения</label>
+              <input
+                type="date"
+                [ngModel]="editClientForm().birthDate"
+                (ngModelChange)="updateField('birthDate', $event)"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                [ngModel]="editClientForm().personalEmail"
+                (ngModelChange)="updateField('personalEmail', $event)"
+              />
+            </div>
+            
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn btn--secondary" (click)="closeEditModal()">
+              Отмена
+            </button>
+
+            <button class="btn btn--success" (click)="saveClient()">
+              Сохранить
+            </button>
+          </div>
+
+        </div>
+      </div>
+      }
 
   </div>
 </div>

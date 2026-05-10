@@ -334,4 +334,8 @@ export class HomeComponent implements OnInit {
   goToProfile() {
     this.router.navigate(['/profile']);
   }
+
+  goToEmployees() {
+    this.router.navigate(['/employees']);
+  }
 }

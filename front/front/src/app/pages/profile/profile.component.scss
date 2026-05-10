@@ -503,4 +503,112 @@
   cursor: not-allowed;
 }
 
+.rentals-section {
+  margin-top: 20px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.rentals-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+
+  th, td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+  }
+
+  th {
+    background: #f6f7fb;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  tr:hover {
+    background: #fafafa;
+  }
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: #eef2ff;
+  font-size: 12px;
+}
+
+.muted {
+  font-size: 12px;
+  color: #888;
+}
+
+.btn-edit {
+  background: #3b82f6;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-right: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-delete {
+  background: #ef4444;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.pagination {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+
+  button {
+    padding: 6px 10px;
+    border: none;
+    background: #eee;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.header-actions .btn {
+  white-space: nowrap;
+  padding: 10px 16px;
+}
+
+@media (max-width: 900px) {
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+}
+
 

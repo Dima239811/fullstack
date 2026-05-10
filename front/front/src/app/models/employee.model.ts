@@ -23,3 +23,25 @@ export interface CreateEmployeeRequest {
   workEmail: string;
 }
  */
+
+
+export interface CreateEmployeeRequest {
+  login: string;
+  password: string;
+  fullName: string;
+  phone: string;
+  position: string;
+  salary: number;
+  department: string;
+  officeNumber: string;
+  workEmail: string;
+}
+
+export interface EmployeeUpdateRequest {
+  id: number;
+  position: string;
+  salary: number;
+  department: string;
+  officeNumber: string;
+  workEmail: string;
+}

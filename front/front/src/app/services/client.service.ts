@@ -30,4 +30,14 @@ export class ClientService {
   deleteClient(login: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${login}`);  
   }
+
+  updateClient(login: string, request: {
+  driverLicense: string;
+  birthDate: string;
+  personalEmail: string;
+  rentCount: number;
+  userId: number;
+}): Observable<ClientProfileResponse> {
+    return this.http.put<ClientProfileResponse>(`${this.apiUrl}/by-login/${login}`, request);
+  }
 }

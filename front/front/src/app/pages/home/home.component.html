@@ -1,21 +1,27 @@
 <div class="home-page">
   <header class="header">
     <div class="container header-content">
-      <h2 class="logo">Car Rental</h2>
+      <h2 class="logo">Аренда автомобилей</h2>
       <div class="header-actions">
         <button class="btn btn--profile" (click)="goToProfile()">Профиль</button>
         <button class="btn btn--secondary" (click)="logout()">Выйти</button>
-        @if (isAdmin()) {
-        <button class="btn btn--secondary" (click)="goToClients()">
-          Клиенты
-        </button>
-      }
+        @if (isAdmin() || isManager()) {
+          <button class="btn btn--secondary" (click)="goToClients()">
+            Клиенты
+          </button>
+        }
 
-            @if (isAdmin() || isManager()) {
-        <button class="btn btn--secondary" (click)="goToCars()">
-          Машины
-        </button>
-      }
+        @if (isAdmin() || isManager()) {
+          <button class="btn btn--secondary" (click)="goToCars()">
+            Машины
+          </button>
+        }
+
+        @if (isAdmin() || isManager()) {
+          <button class="btn btn--secondary" (click)="goToEmployees()">
+            Сотрудники
+          </button>
+        }
 
       </div>
     </div>

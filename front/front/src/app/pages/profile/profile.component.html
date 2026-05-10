@@ -202,16 +202,81 @@
             </div>
           }
 
-          <!-- Аренды под управлением (менеджер/админ) -->
           @if (isManager()) {
             <div class="card rentals-section">
               <h2>Аренды под управлением</h2>
-              @if (rentals().length > 0) {
+
+              @if (pagedRentals().length > 0) {
                 <div class="table-wrapper">
                   <table class="rentals-table">
-                    <!-- ... содержимое таблицы ... -->
+
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Клиент</th>
+                        <th>Авто</th>
+                        <th>Период</th>
+                        <th (click)="setSort('status')" class="sortable">
+                          Статус
+                        </th>
+                        <th>Сумма</th>
+                        <th>Действия</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      @for (r of pagedRentals(); track r.id) {
+                        <tr>
+                          <td>{{ r.id }}</td>
+
+                          <td>
+                            {{ r.clientFullName }}
+                            <div class="muted">{{ r.clientLogin }}</div>
+                          </td>
+
+                          <td>
+                            @for (c of r.cars; track c.carId) {
+                              <div>{{ c.brand }} {{ c.model }}</div>
+                            }
+                          </td>
+
+                          <td>
+                            {{ r.startDate }} → {{ r.endDate }}
+                          </td>
+
+                          <td>
+                            <span class="status">{{ r.status | rentalStatus }}</span>
+                          </td>
+
+                          <td>
+                            {{ getRentalPrice(r) | number:'1.2-2' }} ₽
+                          </td>
+
+                          <td>
+                            <button class="btn btn-edit" (click)="openEditRental(r)">
+                              Редактировать
+                            </button>
+
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+
                   </table>
                 </div>
+
+                <div class="pagination">
+                  <button (click)="page.set(page() - 1)" [disabled]="page() === 0">
+                    ←
+                  </button>
+
+                  <span>Стр. {{ page() + 1 }}</span>
+
+                  <button (click)="page.set(page() + 1)">
+                    →
+                  </button>
+                </div>
+
               } @else {
                 <p class="empty">Назначенных аренд пока нет</p>
               }

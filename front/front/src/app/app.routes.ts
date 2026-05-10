@@ -12,14 +12,23 @@ export const routes: Routes = [
       import('./pages/clients/clients')
     .then(m => m.Clients),
     canActivate: [authGuard],
-    data: { role: 'ADMIN' }
+    data: { roles: ['ADMIN', 'MANAGER'] }
   },
 
   {
     path: 'cars',
     loadComponent: () =>
       import('./pages/cars/cars').then(m => m.Cars),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    data: { roles: ['ADMIN', 'MANAGER'] }
+  },
+
+    {
+      path: 'employees',
+      loadComponent: () =>
+        import('./pages/employees/employees').then(m => m.Employees),
+      canActivate: [authGuard],
+      data: { roles: ['ADMIN', 'MANAGER'] }
   },
 
   { path: '**', redirectTo: 'auth' }

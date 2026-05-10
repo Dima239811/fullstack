@@ -3,10 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ClientService } from '../../services/client.service';
 import { ClientProfileResponse } from '../../models/user-profile.model';
 import { Router } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
+import { UserService } from '../../services/user.service';
+import{FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-clients',
-  imports: [CommonModule],
+  imports: [CommonModule,FormsModule],
   templateUrl: './clients.html',
   styleUrl: './clients.scss',
 })
@@ -14,9 +17,14 @@ export class Clients implements OnInit{
   clients = signal<ClientProfileResponse[]>([]);
   isLoading = signal(false);
 
+  isAdmin = computed(() => {
+    return this.authService.currentUser()?.role === 'ADMIN';
+  });
+
   constructor(
     private clientService: ClientService,
-     private router: Router
+     private router: Router,
+      private authService: AuthService
     ) {}
 
   ngOnInit() {
@@ -37,12 +45,6 @@ export class Clients implements OnInit{
         this.isLoading.set(false);
       }
     });
-  }
-
-  editClient(login: string) {
-    // Здесь логика перехода на страницу редактирования клиента
-    console.log('Редактирование клиента с login:', login);
-    // Например, перенаправление на маршрут /clients/edit/:login
   }
 
   deleteClient(login: string) {
@@ -84,5 +86,73 @@ export class Clients implements OnInit{
 
   goHome() {
     this.router.navigate(['/home']);
+  }
+
+  editingClient = signal<ClientProfileResponse | null>(null);
+
+  showEditModal = signal(false);
+
+  editClientForm = signal({
+    driverLicense: '',
+    birthDate: '',
+    personalEmail: '',
+    rentCount: 0,
+    userId: 0
+  });
+
+  openEditClient(client: ClientProfileResponse) {
+  this.editingClient.set(client);
+
+    this.editClientForm.set({
+      driverLicense: client.driverLicense,
+      birthDate: client.birthDate,
+      personalEmail: client.personalEmail,
+      rentCount: 0, 
+      userId: 0
+    });
+
+    this.showEditModal.set(true);
+  }
+
+  closeEditModal() {
+    this.showEditModal.set(false);
+    this.editingClient.set(null);
+  }
+
+  updateField<K extends keyof ClientProfileResponse>(
+      key: K,
+      value: ClientProfileResponse[K]
+    ) {
+      this.editClientForm.update(emp => {
+        if (!emp) return emp;
+        return { ...emp, [key]: value };
+      });
+    }
+
+  saveClient() {
+    const client = this.editingClient();
+    if (!client) return;
+
+    const request = {
+      driverLicense: this.editClientForm().driverLicense,
+      birthDate: this.editClientForm().birthDate,
+      personalEmail: this.editClientForm().personalEmail,
+      rentCount: 0,
+      userId: 0
+    };
+
+    console.log('Updating client with data:', request);
+    console.log('Client login:', client.login);
+
+    this.clientService.updateClient(client.login, request).subscribe({
+      next: () => {
+        this.loadClients();
+        this.closeEditModal();
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Ошибка обновления клиента');
+      }
+    });
   }
 }
