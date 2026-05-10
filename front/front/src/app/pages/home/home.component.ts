@@ -174,6 +174,14 @@ export class HomeComponent implements OnInit {
     return this.authService.currentUser()?.role === 'ADMIN';
   });
 
+  isManager = computed(() => {
+    return this.authService.currentUser()?.role === 'MANAGER';
+  });
+
+  goToCars() {
+    this.router.navigate(['/cars']);
+  }
+
   goToClients() {
     this.router.navigate(['/clients']);
   }

@@ -14,5 +14,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { role: 'ADMIN' }
   },
+
+  {
+    path: 'cars',
+    loadComponent: () =>
+      import('./pages/cars/cars').then(m => m.Cars),
+    canActivate: [authGuard]
+  },
+
   { path: '**', redirectTo: 'auth' }
 ]; 

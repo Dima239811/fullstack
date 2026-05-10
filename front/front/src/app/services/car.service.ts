@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Car } from '../models/car.model';
+import { Car, CarCreateUpdateDto } from '../models/car.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,12 +22,12 @@ export class CarService {
     return this.http.get<Car>(`${this.apiUrl}/${id}`);
   }
 
-  create(car: Car) {
-    return this.http.post<Car>(this.apiUrl, car);
+  create(car: CarCreateUpdateDto) {
+    return this.http.post<CarCreateUpdateDto>(this.apiUrl, car);
   }
 
-  update(id: number, car: Car) {
-    return this.http.put<Car>(`${this.apiUrl}/${id}`, car);
+  update(id: number, car: CarCreateUpdateDto) {
+    return this.http.put<CarCreateUpdateDto>(`${this.apiUrl}/${id}`, car);
   }
 
   delete(id: number) {

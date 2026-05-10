@@ -10,6 +10,13 @@
           Клиенты
         </button>
       }
+
+            @if (isAdmin() || isManager()) {
+        <button class="btn btn--secondary" (click)="goToCars()">
+          Машины
+        </button>
+      }
+
       </div>
     </div>
   </header>
