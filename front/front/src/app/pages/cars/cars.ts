@@ -56,7 +56,7 @@ cars = signal<Car[]>([]);
 
   editCar(id: number) {
     console.log('Редактирование машины', id);
-    // потом можно открыть форму или перейти на /cars/edit/:id
+    // todo потом можно открыть форму или перейти на /cars/edit/:id
   }
 
   deleteCar(id: number) {

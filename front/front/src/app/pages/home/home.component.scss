@@ -362,7 +362,6 @@
   }
 }
 
-// Selected Cars Section
 .selected-cars-section {
   background: white;
   border-radius: var(--radius-lg);
@@ -468,7 +467,6 @@
   font-weight: 600;
 }
 
-// Modal Styles
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -663,7 +661,6 @@
   }
 }
 
-// Responsive
 @media (max-width: 768px) {
   .cars-grid {
     grid-template-columns: 1fr;
