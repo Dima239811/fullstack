@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { AnalyticsComponent } from './pages/analytics/analytics';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth', pathMatch: 'full' },
@@ -29,6 +30,14 @@ export const routes: Routes = [
         import('./pages/employees/employees').then(m => m.Employees),
       canActivate: [authGuard],
       data: { roles: ['ADMIN', 'MANAGER'] }
+  },
+
+    {
+    path: 'analytics',
+    loadComponent: () =>
+        import('./pages/analytics/analytics').then(m => m.AnalyticsComponent),
+    canActivate: [authGuard],
+    data: { roles: ['ADMIN'] }
   },
 
   { path: '**', redirectTo: 'auth' }

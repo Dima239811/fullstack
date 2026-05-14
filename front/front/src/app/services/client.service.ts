@@ -28,7 +28,7 @@ export class ClientService {
   }
 
   deleteClient(login: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${login}`);  
+    return this.http.delete<void>(`${this.apiUrl}/login/${login}`);  
   }
 
   updateClient(login: string, request: {

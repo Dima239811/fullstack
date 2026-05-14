@@ -220,6 +220,7 @@
                           Статус
                         </th>
                         <th>Сумма</th>
+                        <th>Комментарий</th>
                         <th>Действия</th>
                       </tr>
                     </thead>
@@ -251,6 +252,9 @@
                           <td>
                             {{ getRentalPrice(r) | number:'1.2-2' }} ₽
                           </td>
+
+                          <td>
+                            <small>{{ r.comment || '—' }}</small>
 
                           <td>
                             <button class="btn btn-edit" (click)="openEditRental(r)">
@@ -400,7 +404,6 @@
 
               <form [formGroup]="editRentalForm">
 
-                <!-- STATUS -->
                 <div class="data-item">
                   <label>Статус</label>
                   <select formControlName="status">
@@ -412,7 +415,6 @@
                   </select>
                 </div>
 
-                <!-- DATES -->
                 <div class="data-item">
                   <label>Дата начала</label>
                   <input type="date" formControlName="startDate" />
@@ -423,7 +425,7 @@
                   <input type="date" formControlName="endDate" />
                 </div>
 
-                <!-- COMMENT -->
+
                 <div class="data-item">
                   <label>Комментарий</label>
                   <textarea formControlName="comment"></textarea>

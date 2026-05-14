@@ -1,0 +1,182 @@
+<div class="analytics-container">
+  <div class="nav-bar">
+    <button class="btn btn-back" (click)="goBack()">← На главную</button>
+  </div>
+
+  <div class="action-section">
+    <button [ngClass]="isModalOpen ? 'hide-btn' : 'show-btn'" (click)="toggleChart()">
+      {{ isModalOpen ? 'Скрыть график' : 'Показать график популярности брендов' }}
+    </button>
+  </div>
+
+
+  <div class="action-section" style="display: flex; gap: 10px; align-items: center; margin-top: 20px;">
+    <input 
+      type="text" 
+      [(ngModel)]="selectedBrand" 
+      placeholder="Введите бренд (например, Toyota)"
+      class="brand-input"
+    >
+    
+    <button class="search-btn" (click)="loadClientsByBrand()">
+      Найти клиентов
+    </button>
+  </div>
+
+  <h5>Таблица отображает всех клиентов, кол-во их аренд и кол-во аренд заданного бренда машины</h5>
+
+  @let data = dataClients();
+
+  @if (!data) {
+    <div class="loading-state">
+      <p>Загрузка данных...</p>
+    </div>
+  } @else if (data.data.length > 0) {
+    <div class="results-card">
+
+      <div class="results-header">
+        <h4>{{ data.report }}</h4>
+        <span class="total-badge">Всего: клиентов {{ data.count }}</span>
+      </div>
+
+      
+
+      <div class="table-wrapper">
+        <table class="analytics-table">
+
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Документ</th>
+              <th>ФИО Клиента</th>
+              <th>Всего аренд</th>
+              <th>Аренд бренда</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let client of data.data; trackBy: trackById">
+              <td>{{ client.id }}</td>
+              <td>{{ client.driverLicense }}</td>
+              <td>{{ client.fullName }}</td>
+              <td>{{ client.totalRentals }}</td>
+              <td>
+                <span class="count-tag">
+                  {{ client.brandRentals }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+  } @else {
+    <div class="no-data-alert">
+      К сожалению, по бренду "{{ selectedBrand }}" данных не найдено.
+    </div>
+  }
+
+  <div class="modal-overlay" *ngIf="isModalOpen" (click)="toggleChart()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Аналитика брендов</h3>
+        <button class="close-x" (click)="toggleChart()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="display: block; height: 400px; width: 100%; position: relative;">
+          <canvas baseChart
+            *ngIf="carsChartData.labels?.length"
+            [data]="carsChartData"
+            [options]="chartOptions"
+            [type]="'bar'">
+          </canvas>
+
+          <div *ngIf="!carsChartData.labels?.length" class="loading-state">
+            <p>Загрузка данных...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="period-section">
+
+    <div class="action-section">
+      <button (click)="togglePeriodForm()" class="search-btn">
+        Статистика аренды за период
+      </button>
+    </div>
+
+    @if (showPeriodForm) {
+      <div class="period-form">
+
+        <label>
+          Начало периода
+          <input type="date" [(ngModel)]="startDate">
+        </label>
+
+        <label>
+          Конец периода
+          <input type="date" [(ngModel)]="endDate">
+        </label>
+
+        <button class="search-btn" (click)="loadPeriodAnalytics()">
+          Показать статистику
+        </button>
+
+      </div>
+    }
+
+    @let dataRentals = periodData();
+    @let loading = loadingPeriod();
+
+    <div class="period-result">
+
+      @if (loading) {
+        <div class="loading-state">Загрузка...</div>
+      }
+
+      @else if (dataRentals && dataRentals.totalRentals > 0) {
+        <div class="results-card period-card">
+          <h4>Статистика за период</h4>
+
+          <div class="stats-grid">
+            <div class="stat">
+              <span class="label">Аренд </span>
+              <span class="value">{{  dataRentals.totalRentals }}</span>
+            </div>
+
+            <div class="stat">
+              <span class="label">Клиентов </span>
+              <span class="value">{{ dataRentals.totalClients }}</span>
+            </div>
+
+            <div class="stat">
+              <span class="label">Доход </span>
+              <span class="value">{{ dataRentals.totalIncome }} ₽</span>
+            </div>
+
+            <div class="stat">
+              <span class="label">Топ клиент </span>
+              <span class="value small">{{ dataRentals.topClient }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      @else if (dataRentals && dataRentals.totalRentals === 0) {
+        <div class="no-data-alert">
+          Аренд не было в данный период
+        </div>
+      }
+
+  </div>
+
+</div>
+
+</div>

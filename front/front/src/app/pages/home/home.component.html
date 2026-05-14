@@ -23,6 +23,12 @@
           </button>
         }
 
+        @if (isAdmin()) {
+          <button class="btn btn--secondary" (click)="goToAnalytics()">
+            Аналитика
+          </button>
+        }
+
       </div>
     </div>
   </header>

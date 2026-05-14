@@ -34,7 +34,7 @@
               <th>VIN</th>
               <th>Страховка до</th>
               <th>Техосмотр до</th>
-              @if (canEdit()) {
+              @if (isAdmin()) {
                 <th>Действия</th>
                 }
             </tr>
@@ -54,7 +54,7 @@
                 <td>{{ car.insuranceValidUntil | date:'dd.MM.yyyy' }}</td>
                 <td>{{ car.inspectionValidUntil | date:'dd.MM.yyyy' }}</td>
 
-                @if (canEdit()) {
+                @if (isAdmin()) {
                 <td>
                     <div class="actions">
                     <button

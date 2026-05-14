@@ -401,4 +401,8 @@ export class HomeComponent implements OnInit {
   goToEmployees() {
     this.router.navigate(['/employees']);
   }
+
+  goToAnalytics() {
+    this.router.navigate(['/analytics']);
+  }
 }
