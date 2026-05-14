@@ -276,8 +276,11 @@ export class ProfileComponent implements OnInit {
         this.isEditMode.set(false);
       },
       error: (err) => {
-        console.error('Update failed:', err);
-        alert('Ошибка обновления профиля');
+        if (err.status === 400 && err.error?.message) {
+          alert(err.error.message);
+        } else {
+          alert('Ошибка обновления профиля');
+        }
       }
     });
   }

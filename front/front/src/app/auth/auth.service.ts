@@ -59,6 +59,9 @@ export class AuthService {
         this.login(data.login, data.password);
       },
       error: (err) => {
+        if (err.status === 400 && err.error && err.error.message) {
+          alert(`${err.error.message}`);
+        }
         console.error('Registration failed:', err);
         alert('Ошибка регистрации');
       }

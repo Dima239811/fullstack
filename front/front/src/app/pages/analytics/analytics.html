@@ -1,26 +1,51 @@
 <div class="analytics-container">
-  <div class="nav-bar">
-    <button class="btn btn-back" (click)="goBack()">← На главную</button>
+
+  <header class="analytics-header">
+    <div class="analytics-header-content">
+
+
+      <div class="center-section">
+        <h2 class="logo">Сервис аренды автомобилей</h2>
+      </div>
+
+      <div class="left-section">
+        <button class="btn-back" (click)="goBack()">
+          ← Вернуться на главную
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <div class="analytics-title">
+    <h1>Аналитика</h1>
+    <p>Статистика клиентов, брендов и аренд автомобилей</p>
   </div>
 
-  <div class="action-section">
-    <button [ngClass]="isModalOpen ? 'hide-btn' : 'show-btn'" (click)="toggleChart()">
-      {{ isModalOpen ? 'Скрыть график' : 'Показать график популярности брендов' }}
-    </button>
-  </div>
+  <div class="body">
+
+  <div class="top-actions">
+
+    <div class="action-section" style="display: flex; gap: 10px; align-items: center; margin-top: 20px;">
+      <input 
+        type="text" 
+        [(ngModel)]="selectedBrand" 
+        placeholder="Введите бренд (например, Toyota)"
+        class="brand-input"
+      >
+      
+      <button class="search-btn" (click)="loadClientsByBrand()">
+        Найти клиентов
+      </button>
+    </div>
 
 
-  <div class="action-section" style="display: flex; gap: 10px; align-items: center; margin-top: 20px;">
-    <input 
-      type="text" 
-      [(ngModel)]="selectedBrand" 
-      placeholder="Введите бренд (например, Toyota)"
-      class="brand-input"
-    >
-    
-    <button class="search-btn" (click)="loadClientsByBrand()">
-      Найти клиентов
-    </button>
+    <div class="action-section">
+      <button [ngClass]="isModalOpen ? 'hide-btn' : 'show-btn'" (click)="toggleChart()">
+        {{ isModalOpen ? 'Скрыть график' : 'Показать график популярности брендов' }}
+      </button>
+    </div>
+
   </div>
 
   <h5>Таблица отображает всех клиентов, кол-во их аренд и кол-во аренд заданного бренда машины</h5>
@@ -175,6 +200,7 @@
         </div>
       }
 
+      </div>
   </div>
 
 </div>
