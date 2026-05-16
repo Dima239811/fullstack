@@ -146,6 +146,7 @@ export class ProfileComponent implements OnInit {
       request = this.rentalService.getAll();
     } else if (role === 'MANAGER') {
       request = this.rentalService.getManagerRentals(user.userId);
+      console.log('Loading manager rentals for user', request);
     } else {
       request = this.rentalService.getMyRentals(user.userId);
     }
